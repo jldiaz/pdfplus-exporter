@@ -1,8 +1,14 @@
-/* eslint-disable @typescript-eslint/no-explicit-any, @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-argument */
 export type Rect = [number, number, number, number];
+export interface TextContentItem {
+    str: string;
+    chars?: { c: string; u?: string; r: Rect }[];
+    transform?: number[];
+    width?: number;
+    height?: number;
+}
 
 export class PDFGeometry {
-    computeMergedHighlightRects(textContentItems: any[], selection: [number, number, number, number]): Rect[] {
+    computeMergedHighlightRects(textContentItems: TextContentItem[], selection: [number, number, number, number]): Rect[] {
         const [beginIndex, beginOffset, endIndex, endOffset] = selection;
         const results: Rect[] = [];
 
@@ -12,11 +18,13 @@ export class PDFGeometry {
         let actualEndOffset = endOffset;
         if (actualEndOffset === 0 && actualEndIndex > 0) {
             actualEndIndex--;
-            actualEndOffset = textContentItems[actualEndIndex].str.length;
+            actualEndOffset = textContentItems[actualEndIndex]?.str?.length || 0;
         }
 
         for (let index = beginIndex; index <= actualEndIndex; index++) {
             const item = textContentItems[index];
+
+            if (!item || !item.str || !item.chars) continue;
 
             if (!item || !item.str || !item.chars) continue;
 
@@ -41,10 +49,11 @@ export class PDFGeometry {
         return results;
     }
 
-    private computeHighlightRectForItemFromChars(item: any, index: number, beginIndex: number, beginOffset: number, endIndex: number, endOffset: number): Rect | null {
+    private computeHighlightRectForItemFromChars(item: TextContentItem, index: number, beginIndex: number, beginOffset: number, endIndex: number, endOffset: number): Rect | null {
+        if (!item.chars) return null;
         const trimmedChars = item.chars.slice(
-            item.chars.findIndex((char: any) => char.c === item.str.charAt(0)),
-            item.chars.findLastIndex((char: any) => char.c === item.str.charAt(item.str.length - 1)) + 1
+            item.chars.findIndex((char: {c: string}) => char.c === item.str.charAt(0)),
+            item.chars.findLastIndex((char: {c: string}) => char.c === item.str.charAt(item.str.length - 1)) + 1
         );
 
         const offsetFrom = index === beginIndex ? beginOffset : 0;
@@ -54,6 +63,8 @@ export class PDFGeometry {
 
         const charFrom = trimmedChars[offsetFrom];
         const charTo = trimmedChars[offsetTo];
+        
+        if (!charFrom || !charTo) return null;
         
         return [
             Math.min(charFrom.r[0], charTo.r[0]), Math.min(charFrom.r[1], charTo.r[1]),

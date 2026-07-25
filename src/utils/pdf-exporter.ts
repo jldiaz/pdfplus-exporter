@@ -1,11 +1,9 @@
-/* eslint-disable @typescript-eslint/no-explicit-any, @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-argument */
-// @ts-nocheck
 import { TFile, requestUrl } from 'obsidian';
 import { PDFDocument, PDFHexString, PDFString, PDFPage } from 'pdf-lib';
 import { Annotation, Link } from '../types';
 import type PDFPlusExporterPlugin from '../main';
 import { getRgb } from './colors';
-import { PDFGeometry } from './geometry';
+import { PDFGeometry, Rect, TextContentItem } from './geometry';
 
 export class PDFExporter {
     private pdfBufferCache = new Map<string, ArrayBuffer>();
@@ -78,11 +76,11 @@ export class PDFExporter {
                 const linkPath = link.link.split('#')[0];
                 if (!linkPath) continue;
                 const targetFile = this.plugin.app.metadataCache.getFirstLinkpathDest(linkPath, mdFile.path);
-                if (targetFile && targetFile.path === file.path) {
+                if (targetFile && targetFile.path === file!.path && link.position) {
                     if (!backlinks[mdFile.path]) {
                         backlinks[mdFile.path] = [];
                     }
-                    backlinks[mdFile.path].push({
+                    backlinks[mdFile.path]!.push({
                         displayText: link.displayText || "",
                         link: link.link || "",
                         original: link.original || "",
@@ -119,16 +117,16 @@ export class PDFExporter {
 
     async getBacklinkContext(sourcePath: string, linkInfo: Link): Promise<string> {
         if (!linkInfo.position) return "";
-        const startLine = linkInfo.position.start.line;
-        const endLine = linkInfo.position.end.line;
-        const lines = await this.readSource(sourcePath);
+        const startLine = linkInfo.position!.start.line;
+        const endLine = linkInfo.position!.end.line;
+        const lines = await this.readSource(sourcePath || "");
         if (lines.length === 0) return "";
 
         const context = lines.slice(startLine, endLine + 1);
-        if (context.length > 0 && context[0].trim().startsWith(">")) {
+        if (context.length > 0 && context[0] && context[0].trim().startsWith(">")) {
             let i = startLine + 1;
-            while (i < lines.length && lines[i].startsWith('>')) {
-                context.push(lines[i]);
+            while (i < lines.length && lines[i]?.startsWith('>')) {
+                context.push(lines[i]!);
                 i++;
             }
         }
@@ -144,14 +142,16 @@ export class PDFExporter {
         
         const fields = fragment.split('&').reduce((acc: Record<string, string>, pair) => {
             const splitPair = pair.split('=');
-            if (splitPair.length >= 2) {
-                acc[splitPair[0]] = splitPair[1];
+            const key = splitPair[0];
+            const value = splitPair[1];
+            if (key && value) {
+                acc[key] = value;
             }
             return acc;
         }, {});
 
-        const selectionStr = fields.selection ? fields.selection : "";
-        const rectStr = fields.rect ? fields.rect : "";
+        const selectionStr = fields['selection'] ? fields['selection'] : "";
+        const rectStr = fields['rect'] ? fields['rect'] : "";
 
         if (!selectionStr && !rectStr) return null;
 
@@ -202,19 +202,20 @@ export class PDFExporter {
         });
     }
 
-    private createArtificialChars(item: any) {
+    private createArtificialChars(item: TextContentItem) {
+        if (!item.transform || !item.width || !item.height) return [];
         const [a, , , d, e, f] = item.transform;
-        const width = item.width * a;
-        const height = item.height * d;
-        const x1 = e;
-        const y1 = f - height;
-        const x2 = e + width;
-        const y2 = f;
+        const width = item.width * (a as number);
+        const height = item.height * (d as number);
+        const x1 = e as number;
+        const y1 = (f as number) - height;
+        const x2 = (e as number) + width;
+        const y2 = f as number;
 
         return [{
             c: " ",
             u: " ",
-            r: [x1, y1, x2, y2]
+            r: [x1, y1, x2, y2] as Rect
         }];
     }
 
@@ -223,7 +224,7 @@ export class PDFExporter {
         if (!file) throw new Error("PDF file not found");
 
         const buffer = await this.getPdfBytes(file);
-        const pdf = await (window as any).pdfjsLib.getDocument(buffer).promise;
+        const pdf = await (window as unknown as { pdfjsLib: { getDocument: (buffer: ArrayBuffer) => { promise: Promise<any> } } }).pdfjsLib.getDocument(buffer).promise;
         const geometry = new PDFGeometry();
         
         const annotationsByPage = new Map<number, Annotation[]>();
@@ -238,21 +239,21 @@ export class PDFExporter {
             const pdfPage = await pdf.getPage(page);
             const pageContent = await pdfPage.getTextContent({includeChars: true});
             
-            pageContent.items.forEach((item: any) => {
-                if (!item.chars) { item.chars = this.createArtificialChars(item); }
+            pageContent.items.forEach((item: TextContentItem) => {
+                if (!item.chars && item.str) { item.chars = this.createArtificialChars(item); }
             });
             
-            pageContent.items.forEach((item: any) => {
-                if (item.chars.length < item.str.length) {
+            pageContent.items.forEach((item: TextContentItem) => {
+                if (item.chars && item.str && item.chars.length < item.str.length) {
                     item.str = item.str.slice(0, item.chars.length);
                 }
             });
 
             for (const annotation of pageAnnotations) {
                 if (annotation.rect) {
-                    annotation.rectangles = [annotation.rect];
+                    annotation.rectangles = [annotation.rect as Rect];
                 } else if (annotation.selection) {
-                    const rectangles = geometry.computeMergedHighlightRects(pageContent.items, annotation.selection as any);
+                    const rectangles = geometry.computeMergedHighlightRects(pageContent.items as TextContentItem[], annotation.selection as [number, number, number, number]);
                     annotation.rectangles = rectangles;
                 }
             }
@@ -263,11 +264,11 @@ export class PDFExporter {
         if (!text.startsWith("> ")) return text;
         const lines = text.split("\n");
         let i = 1;
-        while (i < lines.length && lines[i].startsWith("> >")) {
+        while (i < lines.length && lines[i]?.startsWith("> >")) {
             i += 1;
         }
         let remainingLines = lines.slice(i).map(line => line.startsWith(">") ? line.slice(1) : line);
-        if (remainingLines.length > 0 && remainingLines[0].trim() === "") {
+        if (remainingLines.length > 0 && remainingLines[0] && remainingLines[0].trim() === "") {
             remainingLines = remainingLines.slice(1);
         }
         return remainingLines.join("\n");
@@ -309,10 +310,10 @@ export class PDFExporter {
     }
 
     private processAnnotation(annotation: Annotation, replacement: string, removeCallouts = true, removeBullet = true): Annotation {
-        if (annotation.context.startsWith("> [!") && annotation.original) {
-            const lines = annotation.context.split("\n");
+        if (annotation.context?.startsWith("> [!") && annotation.original) {
+            const lines = annotation.context!.split("\n");
             let title: string | null = null;
-            const parts = lines[0].split(annotation.original);
+            const parts = lines[0]?.split(annotation.original) || [];
             if (parts.length >= 2) {
                 title = parts.pop()!.trim();
             }
@@ -326,7 +327,7 @@ export class PDFExporter {
                 effectiveReplacement = alias;
             }
             annotation.context = this.cleanContext(
-                annotation.context,
+                annotation.context!,
                 annotation.original,
                 effectiveReplacement,
                 this.plugin.settings.removeCallouts,
@@ -357,15 +358,15 @@ export class PDFExporter {
         const rects = annotation.rectangles || [];
         if (rects.length === 0) return "";
         
-        const mergedRect = geometry.mergeRectangles(...rects as any);
-        const quadPoints = geometry.rectsToQuadPoints(rects as any);
+        const mergedRect = geometry.mergeRectangles(...rects as Rect[]);
+        const quadPoints = geometry.rectsToQuadPoints(rects as Rect[]);
 
         const isSquare = !!annotation.rect;
         const subtype = isSquare ? 'Square' : 'Highlight';
 
         const context = page.doc.context;
         const embedComment = this.plugin.settings.embedCommentInHighlight;
-        const annotObj: any = {
+        const annotObj = {
             Type: 'Annot',
             Subtype: subtype,
             Rect: mergedRect,
@@ -377,17 +378,22 @@ export class PDFExporter {
         };
 
         if (isSquare) {
+            // @ts-ignore
             annotObj.BS = context.obj({
                 Type: 'Border',
                 W: 2,
                 S: 'S'
             });
         } else {
+            // @ts-ignore
             annotObj.QuadPoints = quadPoints;
+            // @ts-ignore
             annotObj.CA = this.plugin.settings.highlightAlpha;
+            // @ts-ignore
             annotObj.Border = [0, 0, 0];
         }
 
+        // @ts-ignore
         const ref = context.register(context.obj(annotObj));
         page.node.addAnnot(ref);
 
@@ -396,7 +402,7 @@ export class PDFExporter {
             const noteY2 = mergedRect[3];
             const noteRect = [noteX1, noteY2 - 20, noteX1 + 20, noteY2];
 
-            const noteObj: any = {
+            const noteObj = {
                 Type: 'Annot',
                 Subtype: 'Text',
                 Name: 'Comment',
@@ -408,6 +414,7 @@ export class PDFExporter {
                 C: [r / 255, g / 255, b / 255],
             };
 
+            // @ts-ignore
             const noteRef = context.register(context.obj(noteObj));
             page.node.addAnnot(noteRef);
         }
@@ -437,14 +444,14 @@ export class PDFExporter {
             }
         }
         
-        // eslint-disable-next-line @typescript-eslint/await-thenable
+        // eslint-disable-next-line @typescript-eslint/await-thenable -- pdf-lib save returns a promise in this env
         const pdfBytes = await Promise.resolve(pdfDoc.save());
         
         const existingFile = this.plugin.app.vault.getAbstractFileByPath(outputPdfName);
         if (existingFile instanceof TFile) {
-            await this.plugin.app.vault.modifyBinary(existingFile, pdfBytes.buffer);
+            await this.plugin.app.vault.modifyBinary(existingFile, pdfBytes.buffer as ArrayBuffer);
         } else {
-            await this.plugin.app.vault.createBinary(outputPdfName, pdfBytes.buffer);
+            await this.plugin.app.vault.createBinary(outputPdfName, pdfBytes.buffer as ArrayBuffer);
         }
     }
 }

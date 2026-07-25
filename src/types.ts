@@ -1,4 +1,4 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
+import { Rect } from "./utils/geometry";
 export interface Position {
     start: { line: number; col: number; offset: number };
     end: { line: number; col: number; offset: number };
@@ -23,5 +23,5 @@ export interface Annotation {
     title: string | null;
     tags: string[];
     source: string;
-    rectangles?: any[];
+    rectangles?: Rect[];
 }
