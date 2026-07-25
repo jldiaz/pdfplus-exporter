@@ -1,5 +1,5 @@
 // @ts-nocheck
-import { App, TFile, requestUrl } from 'obsidian';
+import { TFile, requestUrl } from 'obsidian';
 import { PDFDocument, PDFHexString, PDFString, PDFPage } from 'pdf-lib';
 import { Annotation, Link } from '../types';
 import type PDFPlusExporterPlugin from '../main';
@@ -59,7 +59,6 @@ export class PDFExporter {
         if (!file) return null;
         
         // This requires dataview API usually. Let's see if we can use Obsidian's metadata cache
-        const resolvedLinks = this.plugin.app.metadataCache.resolvedLinks;
         const backlinks: Record<string, Link[]> = {};
         
         // However, the original code used Dataview. 
@@ -86,7 +85,7 @@ export class PDFExporter {
                         displayText: link.displayText || "",
                         link: link.link || "",
                         original: link.original || "",
-                        position: link.position as any
+                        position: link.position
                     });
                 }
             }
@@ -203,7 +202,7 @@ export class PDFExporter {
     }
 
     private createArtificialChars(item: any) {
-        const [a, b, c, d, e, f] = item.transform;
+        const [a, , , d, e, f] = item.transform;
         const width = item.width * a;
         const height = item.height * d;
         const x1 = e;
@@ -316,7 +315,7 @@ export class PDFExporter {
             if (parts.length >= 2) {
                 title = parts.pop()!.trim();
             }
-            const context = parts.slice(1).join("]");
+            const contextContent = parts.slice(1).join("]");
             annotation.title = title;
         }
         if (annotation.original) {
@@ -438,7 +437,7 @@ export class PDFExporter {
             }
         }
         
-        const pdfBytes = await pdfDoc.save();
+        const pdfBytes = await Promise.resolve(pdfDoc.save());
         
         const existingFile = this.plugin.app.vault.getAbstractFileByPath(outputPdfName);
         if (existingFile instanceof TFile) {

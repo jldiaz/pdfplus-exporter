@@ -1,8 +1,9 @@
-import { App, Modal, Setting, Notice } from 'obsidian';
+import { Modal, Setting, Notice } from 'obsidian';
 import { PDFExporter } from '../utils/pdf-exporter';
 import { PdfInputSuggest } from './PdfInputSuggest';
 import type PDFPlusExporterPlugin from '../main';
 import { t } from '../i18n';
+import { Link } from '../types';
 
 export class ExportModal extends Modal {
     pdfSource: string;
@@ -113,10 +114,10 @@ export class ExportModal extends Modal {
             // Aplicar filtro de glob si existe
             if (this.sourceGlob) {
                 const globRegex = new RegExp('^' + this.sourceGlob.split('*').map(s => s.replace(/[.*+?^${}()|[\\]\\\\]/g, '\\\\$&')).join('.*') + '$');
-                const filtered: Record<string, any> = {};
+                const filtered: Record<string, Link[]> = {};
                 for (const file in backlinks) {
-                    if (globRegex.test(file)) {
-                        filtered[file] = backlinks[file];
+                    if (globRegex.test(file) && backlinks[file]) {
+                        filtered[file] = backlinks[file] as Link[];
                     }
                 }
                 backlinks = filtered;

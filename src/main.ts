@@ -1,4 +1,4 @@
-import { Plugin, Notice } from 'obsidian';
+import { Plugin } from 'obsidian';
 import { PDFPlusExporterSettings, DEFAULT_SETTINGS, PDFPlusExporterSettingTab } from './ui/SettingsTab';
 import { ExportModal } from './ui/ExportModal';
 import { t } from './i18n';
@@ -34,7 +34,7 @@ export default class PDFPlusExporterPlugin extends Plugin {
     }
 
     async loadSettings() {
-        this.settings = Object.assign({}, DEFAULT_SETTINGS, await this.loadData());
+        this.settings = Object.assign({}, DEFAULT_SETTINGS, (await this.loadData()) as Partial<PDFPlusExporterSettings>);
     }
 
     async saveSettings() {
