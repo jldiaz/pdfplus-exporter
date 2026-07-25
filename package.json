@@ -1,6 +1,6 @@
 {
 	"name": "pdfplus-exporter",
-	"version": "1.0.0",
+	"version": "1.0.1",
 	"description": "Exports PDF++ annotations to physical PDF files.",
 	"main": "main.js",
 	"type": "module",

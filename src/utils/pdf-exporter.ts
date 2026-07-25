@@ -181,11 +181,9 @@ export class PDFExporter {
         const contexts: Record<string, Annotation[]> = {};
         for (const [source, links] of Object.entries(backlinks)) {
             for (const link of links) {
-                console.log("[PDF++ Exporter] Processing link:", link.link, "from:", source);
                 if (!link.link.includes("selection") && !link.link.includes("rect")) continue;
                 const data = await this.getBacklinkData(source, link);
                 if (data) {
-                    console.log("[PDF++ Exporter] Extracted annotation:", data);
                     if (!contexts[source]) {
                         contexts[source] = [];
                     }
