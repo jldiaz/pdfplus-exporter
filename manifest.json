@@ -1,7 +1,7 @@
 {
 	"id": "pdfplus-exporter",
 	"name": "PDF++ Exporter",
-	"version": "1.0.4",
+	"version": "1.0.5",
 	"minAppVersion": "1.6.0",
 	"description": "Exports PDF++ annotations to physical PDF files.",
 	"author": "jldiaz",

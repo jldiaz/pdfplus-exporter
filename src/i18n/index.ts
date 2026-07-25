@@ -94,11 +94,11 @@ const localeMap: { [k: string]: Partial<typeof en> } = {
 };
 
 export function t(strId: keyof typeof en, params?: Record<string, string>): string {
-    const locale = (window.localStorage.getItem('language') || moment.locale() || 'en') as string;
+    const locale = (window.localStorage.getItem('language') || moment.locale() || 'en');
     const baseLocale = (locale.split('-')[0]) as string;
     const lang = localeMap[locale] || localeMap[baseLocale] || en;
     
-    let result = (lang[strId] || en[strId] || strId) as string;
+    let result = (lang[strId] || en[strId] || strId);
     
     if (params) {
         for (const [key, value] of Object.entries(params)) {

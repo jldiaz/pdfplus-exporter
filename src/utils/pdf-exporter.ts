@@ -5,6 +5,14 @@ import type PDFPlusExporterPlugin from '../main';
 import { getRgb } from './colors';
 import { PDFGeometry, Rect, TextContentItem } from './geometry';
 
+interface PDFJSPage {
+    getTextContent(params: { includeChars: boolean }): Promise<{ items: TextContentItem[] }>;
+}
+
+interface PDFJSDocument {
+    getPage(pageNumber: number): Promise<PDFJSPage>;
+}
+
 export class PDFExporter {
     private pdfBufferCache = new Map<string, ArrayBuffer>();
 
@@ -76,7 +84,7 @@ export class PDFExporter {
                 const linkPath = link.link.split('#')[0];
                 if (!linkPath) continue;
                 const targetFile = this.plugin.app.metadataCache.getFirstLinkpathDest(linkPath, mdFile.path);
-                if (targetFile && targetFile.path === file!.path && link.position) {
+                if (targetFile && targetFile.path === file.path && link.position) {
                     if (!backlinks[mdFile.path]) {
                         backlinks[mdFile.path] = [];
                     }
@@ -117,8 +125,8 @@ export class PDFExporter {
 
     async getBacklinkContext(sourcePath: string, linkInfo: Link): Promise<string> {
         if (!linkInfo.position) return "";
-        const startLine = linkInfo.position!.start.line;
-        const endLine = linkInfo.position!.end.line;
+        const startLine = linkInfo.position.start.line;
+        const endLine = linkInfo.position.end.line;
         const lines = await this.readSource(sourcePath || "");
         if (lines.length === 0) return "";
 
@@ -224,7 +232,7 @@ export class PDFExporter {
         if (!file) throw new Error("PDF file not found");
 
         const buffer = await this.getPdfBytes(file);
-        const pdf = await (window as unknown as { pdfjsLib: { getDocument: (buffer: ArrayBuffer) => { promise: Promise<any> } } }).pdfjsLib.getDocument(buffer).promise;
+        const pdf = await (window as unknown as { pdfjsLib: { getDocument: (buffer: ArrayBuffer) => { promise: Promise<PDFJSDocument> } } }).pdfjsLib.getDocument(buffer).promise;
         const geometry = new PDFGeometry();
         
         const annotationsByPage = new Map<number, Annotation[]>();
@@ -253,7 +261,7 @@ export class PDFExporter {
                 if (annotation.rect) {
                     annotation.rectangles = [annotation.rect as Rect];
                 } else if (annotation.selection) {
-                    const rectangles = geometry.computeMergedHighlightRects(pageContent.items as TextContentItem[], annotation.selection as [number, number, number, number]);
+                    const rectangles = geometry.computeMergedHighlightRects(pageContent.items, annotation.selection as [number, number, number, number]);
                     annotation.rectangles = rectangles;
                 }
             }
@@ -311,7 +319,7 @@ export class PDFExporter {
 
     private processAnnotation(annotation: Annotation, replacement: string, removeCallouts = true, removeBullet = true): Annotation {
         if (annotation.context?.startsWith("> [!") && annotation.original) {
-            const lines = annotation.context!.split("\n");
+            const lines = annotation.context.split("\n");
             let title: string | null = null;
             const parts = lines[0]?.split(annotation.original) || [];
             if (parts.length >= 2) {
@@ -327,7 +335,7 @@ export class PDFExporter {
                 effectiveReplacement = alias;
             }
             annotation.context = this.cleanContext(
-                annotation.context!,
+                annotation.context,
                 annotation.original,
                 effectiveReplacement,
                 this.plugin.settings.removeCallouts,
@@ -358,8 +366,8 @@ export class PDFExporter {
         const rects = annotation.rectangles || [];
         if (rects.length === 0) return "";
         
-        const mergedRect = geometry.mergeRectangles(...rects as Rect[]);
-        const quadPoints = geometry.rectsToQuadPoints(rects as Rect[]);
+        const mergedRect = geometry.mergeRectangles(...rects);
+        const quadPoints = geometry.rectsToQuadPoints(rects);
 
         const isSquare = !!annotation.rect;
         const subtype = isSquare ? 'Square' : 'Highlight';
@@ -438,14 +446,14 @@ export class PDFExporter {
         }
 
         for (const [pagenum, pageAnnotations] of annotationsByPage.entries()) {
-            const page = await pdfDoc.getPage(pagenum - 1);
+            const page = pdfDoc.getPage(pagenum - 1);
             for (const annotation of pageAnnotations) {
                 this.addHighlightToPdfPage(page, annotation);
             }
         }
         
-        // eslint-disable-next-line @typescript-eslint/await-thenable -- pdf-lib save returns a promise in this env
-        const pdfBytes = await Promise.resolve(pdfDoc.save());
+         
+        const pdfBytes = await pdfDoc.save();
         
         const existingFile = this.plugin.app.vault.getAbstractFileByPath(outputPdfName);
         if (existingFile instanceof TFile) {
