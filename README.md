@@ -1,92 +1,113 @@
-# Obsidian Sample Plugin
+# PDF++ Exporter for Obsidian
 
-This is a sample plugin for Obsidian (https://obsidian.md).
+**PDF++ Exporter** is an Obsidian plugin designed to "burn" (physically write) your annotations and notes taken in Markdown files back into your PDF documents using standard PDF annotations (highlight rectangles and pop-up comments).
 
-This project uses TypeScript to provide type checking and documentation.
-The repo depends on the latest plugin API (obsidian.d.ts) in TypeScript Definition format, which contains TSDoc comments describing what it does.
+It is the perfect companion for the **PDF++** plugin, allowing you to share your annotated papers, books, or documents with non-Obsidian users (openable in Adobe Acrobat, macOS Preview, PDF.js, or any standard PDF viewer).
 
-This sample plugin demonstrates some of the basic functionality the plugin API can do.
+---
 
-- Adds a ribbon icon, which shows a Notice when clicked.
-- Adds a command "Open modal (simple)" which opens a Modal.
-- Adds a plugin setting tab to the settings page.
-- Registers a global click event and outputs a Notice on click.
-- Registers a global interval which logs 'setInterval' to the console.
+## 🎯 Purpose
 
-## First time developing plugins?
+[PDF++](https://github.com/RyotaUshio/obsidian-pdf-plus) enables annotating PDFs without modifying the original files, keeping a pristine copy in your vault and saving all notes, highlights, and comments inside Markdown files.
 
-Quick starting guide for new plugin devs:
+While this non-destructive approach is ideal inside Obsidian, the connection between your notes and the PDF is lost when you share the document externally. **PDF++ Exporter** solves this by analyzing Markdown backlinks, extracting the context and comments, and generating a standalone, annotated PDF file with native PDF annotations.
 
-- Check if [someone already developed a plugin for what you want](https://obsidian.md/plugins)! There might be an existing plugin similar enough that you can partner up with.
-- Make a copy of this repo as a template with the "Use this template" button (login to GitHub if you don't see it).
-- Clone your repo to a local development folder. For convenience, you can place this folder in your `.obsidian/plugins/your-plugin-name` folder.
-- Install NodeJS, then run `npm i` in the command line under your repo folder.
-- Run `npm run dev` to compile your plugin from `src/main.ts` to `main.js`.
-- Make changes to `src/main.ts` (or create new `.ts` files). Those changes should be automatically compiled into `main.js`.
-- Reload Obsidian to load the new version of your plugin.
-- Enable plugin in settings window.
-- For updates to the Obsidian API run `npm update` in the command line under your repo folder.
+---
 
-## Releasing new releases
+## 💡 Use Cases
 
-- Update your `manifest.json` with your new version number, such as `1.0.1`, and the minimum Obsidian version required for your latest release.
-- Update your `versions.json` file with `"new-plugin-version": "minimum-obsidian-version"` so older versions of Obsidian can download an older version of your plugin that's compatible.
-- Create new GitHub release using your new version number as the "Tag version". Use the exact version number, don't include a prefix `v`. See here for an example: https://github.com/obsidianmd/obsidian-sample-plugin/releases
-- Upload the files `manifest.json`, `main.js`, `styles.css` as binary attachments. Note: The manifest.json file must be in two places, first the root path of your repository and also in the release.
-- Publish the release.
+1. **Sharing Annotated Research Papers**:
+   Read and highlight papers using PDF++ while writing notes in your vault. Export a final PDF with native color highlights and popup comments to send to colleagues, peer reviewers, or professors.
 
-> You can simplify the version bump process by running `npm version patch`, `npm version minor` or `npm version major` after updating `minAppVersion` manually in `manifest.json`.
-> The command will bump version in `manifest.json` and `package.json`, and add the entry for the new version to `versions.json`
+   <!-- PLACEHOLDER: Screenshot of the Export Modal -->
+   *(Insert screenshot of Export Modal here)*
 
-## Adding your plugin to the community plugin list
+2. **Document & Contract Review**:
+   Annotate contracts or draft documents in Markdown. Export the PDF with your comments as native PDF tooltips/annotations.
 
-- Check the [plugin guidelines](https://docs.obsidian.md/Plugins/Releasing/Plugin+guidelines).
-- Publish an initial version.
-- Make sure you have a `README.md` file in the root of your repo.
-- Make a pull request at https://github.com/obsidianmd/obsidian-releases to add your plugin.
+   <!-- PLACEHOLDER: Screenshot of exported PDF opened in Adobe Acrobat or Preview -->
+   *(Insert screenshot of exported PDF in an external viewer here)*
 
-## How to use
+---
 
-- Clone this repo.
-- Make sure your NodeJS is at least v18 (`node --version`).
-- `npm i` to install dependencies.
-- `npm run dev` to start compilation in watch mode.
+## ⚙️ Key Features
 
-## Manually installing the plugin
+- **Standalone Operation**: Generates annotations based on PDF++ links without requiring the PDF++ plugin to be enabled during export.
+- **Smart Autocomplete**: Modal with quick fuzzy-filtering of PDFs in your vault.
+- **Support for All Annotation Types**: Exports both text highlights (`Highlight`) and rectangular area selections (`Square`).
+- **Sticky Notes**: Option to generate floating sticky notes (`Text` annotations) with your comments alongside standard highlight popups for maximum compatibility across different PDF viewers (Preview, Edge, Acrobat).
+- **Customizable Highlights**:
+  - Filter by annotation color or note types.
+  - Adjustable opacity (Alpha) to prevent overly saturated highlight colors.
+  - Option to embed comments inside the highlighted area, as floating sticky notes, or both.
+  - Configurable link replacement text (defaults to `[...]`) to replace Markdown link tags within comment popups.
+  - Option to configure a "Max Alias Length". Aliases shorter than this length will be preserved in the comment (useful for manually typed short aliases), while longer auto-generated aliases will be replaced. Set to 0 to always replace.
+  - Option to clean up Markdown callouts (`> [!info]`) and list bullets (`- `, `* `).
+- **"Dummy PDF" Support**: Complete compatibility with remote/external PDFs referenced via URL.
 
-- Copy over `main.js`, `styles.css`, `manifest.json` to your vault `VaultFolder/.obsidian/plugins/your-plugin-id/`.
+---
 
-## Improve code quality with eslint
+## 🖼️ Screenshots
 
-- [ESLint](https://eslint.org/) is a tool that analyzes your code to quickly find problems. You can run ESLint against your plugin to find common bugs and ways to improve your code.
-- This project already has eslint preconfigured, you can invoke a check by running`npm run lint`
-- Together with a custom eslint [plugin](https://github.com/obsidianmd/eslint-plugin) for Obsidan specific code guidelines.
-- A GitHub action is preconfigured to automatically lint every commit on all branches.
+- **Export Modal**:
+  ![Export Modal Placeholder](https://via.placeholder.com/600x400?text=Export+Modal+Screenshot)
+- **Exported PDF in External Viewer**:
+  ![PDF Viewer Placeholder](https://via.placeholder.com/600x400?text=PDF+in+Acrobat+or+Preview)
+- **Settings Panel**:
+  ![Settings Placeholder](https://via.placeholder.com/600x400?text=Settings+Panel+Screenshot)
 
-## Funding URL
+---
 
-You can include funding URLs where people who use your plugin can financially support it.
+## 🛠️ Technical Details & Implementation
 
-The simple way is to set the `fundingUrl` field to your link in your `manifest.json` file:
+### 1. The Comment Extraction Problem (Heuristics & Conventions)
 
-```json
-{
-	"fundingUrl": "https://buymeacoffee.com"
-}
-```
+#### The Problem:
+Extracting a "comment" from a Markdown file to embed into a PDF popup annotation is an open-ended, ill-defined problem. PDF++ generates the Markdown wikilink pointing to a selection fragment (handling the visual overlay in Obsidian), but it dictates nothing about how users structure their comments around those links. Markdown grants total freedom.
 
-If you have multiple URLs, you can also do:
+#### The Current Solution (Convention-based Heuristics):
+**PDF++ Exporter** resolves this by supporting two common note-taking conventions:
 
-```json
-{
-	"fundingUrl": {
-		"Buy Me a Coffee": "https://buymeacoffee.com",
-		"GitHub Sponsor": "https://github.com/sponsors",
-		"Patreon": "https://www.patreon.com/"
-	}
-}
-```
+1. **Callout Quotes (`> [!PDF|...]`)**:
+   PDF++ can automatically generate callouts containing a quote of the highlighted text followed by user comments. 
+   - The plugin extracts the body of the callout as the main comment popup content.
+   - Text appended to the callout header (e.g., `> [!PDF|2026-03-06 14:00]`) is parsed as metadata (title/author/timestamp) for the PDF annotation popup header.
+2. **Running Text / List Items**:
+   Links can be embedded directly within continuous paragraphs or list items (e.g., `"- The finding in [[paper.pdf#page=1|this section]] is prohibitive."`).
+   - The exporter extracts the full paragraph or list item, stripping initial list markers (`- `, `* `).
+   - Because raw Markdown wikilinks look cluttered inside standard PDF popups, the plugin replaces the link reference with the user-defined replacement text (defaults to `[...]`).
+   - If the wikilink contains a short alias manually typed by the user (e.g., `[[paper.pdf#page=1|here]]`), it can be preserved instead of the replacement text by configuring the "Max Alias Length" in settings.
 
-## API Documentation
+> *Note: As community adoption grows, additional heuristics and user-defined comment extraction patterns will be supported.*
 
-See https://docs.obsidian.md
+### 2. The Coordinate Mapping Challenge
+
+#### The Problem:
+PDF++ does not store physical page coordinates ($X, Y$ bounding boxes) inside Markdown links. Instead, it encodes the text selection inside the URL fragment using line and character offsets relative to PDF.js's extracted text stream (e.g., `#page=1&selection=10,2,12,5`).
+
+#### The Solution:
+To draw native `Highlight` rectangles and `QuadPoints` using `pdf-lib`, **PDF++ Exporter** includes a custom geometry engine (`PDFGeometry`) reverse-engineered from PDF++:
+
+1. Loads the page text content using PDF.js (`window.pdfjsLib`).
+2. Maps character and line indices from the fragment to glyph containers and text rectangles returned by PDF.js.
+3. Converts and merges those rectangles into physical PDF coordinates (with bottom-left origin).
+4. Constructs native PDF dictionaries (`PDFDict` / `/Subtype /Highlight` / `/QuadPoints` / `/Rect`) and injects the annotations into the PDF pages using `pdf-lib`.
+
+### 3. Handling "Dummy PDFs" (Remote PDFs)
+
+#### The Problem:
+PDF++ supports "Dummy PDFs": local `.pdf` files containing plain text pointing to an external URL (`https://...`). Trying to read or clone these files directly as binary PDF buffers causes corrupted PDF errors.
+
+#### The Solution:
+The exporter handles remote PDFs seamlessly through a 3-tier strategy:
+
+1. **Header Detection**: Checks the file header upon reading. If it does not start with `%PDF-` and contains an `http(s)://` URL, remote mode is activated.
+2. **Disk Cache Check (PDF++ Fork Integration)**: Checks if the remote PDF was already cached locally by checking for its SHA-256 hash at `.obsidian/plugins/pdf-plus/dummy-cache/HASH.pdf`. If present, it loads directly from disk.
+3. **In-Memory Fetching & Caching**: If not cached on disk, fetches the PDF using Obsidian's CORS-bypassing `requestUrl`. The binary is cached in RAM (`pdfBufferCache`) during the export session to prevent duplicate network downloads.
+4. **Detached Buffer Protection**: Buffer clones (`buffer.slice(0)`) are passed to rendering engines, preventing memory detachment errors caused by PDF.js Web Workers.
+
+---
+
+## 📜 License
+
+MIT License.

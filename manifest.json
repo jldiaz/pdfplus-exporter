@@ -1,11 +1,11 @@
 {
-	"id": "sample-plugin",
-	"name": "Sample Plugin",
+	"id": "pdfplus-exporter",
+	"name": "PDF++ Exporter",
 	"version": "1.0.0",
 	"minAppVersion": "1.0.0",
-	"description": "Demonstrates some of the capabilities of the Obsidian API.",
-	"author": "Obsidian",
-	"authorUrl": "https://obsidian.md",
-	"fundingUrl": "https://obsidian.md/pricing",
+	"description": "Exports PDF++ annotations to physical PDF files.",
+	"author": "jldiaz",
+	"authorUrl": "",
+	"fundingUrl": "",
 	"isDesktopOnly": false
 }
