@@ -19,14 +19,8 @@ While this non-destructive approach is ideal inside Obsidian, the connection bet
 1. **Sharing Annotated Research Papers**:
    Read and highlight papers using PDF++ while writing notes in your vault. Export a final PDF with native color highlights and popup comments to send to colleagues, peer reviewers, or professors.
 
-   <!-- PLACEHOLDER: Screenshot of the Export Modal -->
-   *(Insert screenshot of Export Modal here)*
-
 2. **Document & Contract Review**:
    Annotate contracts or draft documents in Markdown. Export the PDF with your comments as native PDF tooltips/annotations.
-
-   <!-- PLACEHOLDER: Screenshot of exported PDF opened in Adobe Acrobat or Preview -->
-   *(Insert screenshot of exported PDF in an external viewer here)*
 
 ---
 
@@ -50,11 +44,13 @@ While this non-destructive approach is ideal inside Obsidian, the connection bet
 ## 🖼️ Screenshots
 
 - **Export Modal**:
-  ![Export Modal Placeholder](https://via.placeholder.com/600x400?text=Export+Modal+Screenshot)
+  ![Export Modal Placeholder](images/modal.png)
+- **Markdown note containing links to other pdfs**:
+  ![Markdown note](images/markdown_notes.png)
 - **Exported PDF in External Viewer**:
-  ![PDF Viewer Placeholder](https://via.placeholder.com/600x400?text=PDF+in+Acrobat+or+Preview)
+  ![PDF Viewer Placeholder](images/pdf_viewer.png)
 - **Settings Panel**:
-  ![Settings Placeholder](https://via.placeholder.com/600x400?text=Settings+Panel+Screenshot)
+  ![Settings Placeholder](images/settings.png)
 
 ---
 

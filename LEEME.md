@@ -18,15 +18,9 @@ Si bien este enfoque bidireccional es ideal dentro de Obsidian, se pierde la rel
 
 1. **Compartir lecturas o artículos académicos anotados**:
    Estudias un paper usando PDF++ y tomas notas en tu bóveda. Con este plugin, exportas una versión final del PDF con todos los resaltados de color y notas adjuntas para enviar a tus compañeros o profesores.
-   
-   <!-- PLACEHOLDER: Captura de pantalla de la ventana de exportación -->
-   *(Insertar aquí captura del modal de exportación)*
 
 2. **Revisión de documentos y contratos**:
    Anotas contratos o borradores en Markdown. Exportas el documento PDF final conservando tus comentarios como tooltips/anotaciones nativas de PDF.
-   
-   <!-- PLACEHOLDER: Captura del PDF resultante abierto en Adobe Acrobat / Preview -->
-   *(Insertar aquí captura del PDF resultante en un visor externo)*
 
 ---
 
@@ -49,14 +43,14 @@ Si bien este enfoque bidireccional es ideal dentro de Obsidian, se pierde la rel
 
 ## 🖼️ Capturas de Pantalla
 
-*(Por favor, reemplaza estos placeholders con imágenes reales antes de publicar)*
-
 - **Modal de Exportación**:
-  ![Placeholder Modal Exportación](https://via.placeholder.com/600x400?text=Captura+Modal+Exportacion)
+  ![Export Modal](images/modal.png)
+- **Nota Markdown con enlaces a otros PDFs**:
+  ![Markdown note](images/markdown_notes.png)  
 - **PDF Exportado en Visor Externo**:
-  ![Placeholder Visor PDF](https://via.placeholder.com/600x400?text=PDF+en+Acrobat+o+Vista+Previa)
+  ![PDF Viewer](images/pdf_viewer.png)
 - **Panel de Configuración**:
-  ![Placeholder Opciones](https://via.placeholder.com/600x400?text=Captura+Opciones)
+  ![Settings](images/settings.png)
 
 ---
 
