@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any, @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-argument */
 // @ts-nocheck
 import { TFile, requestUrl } from 'obsidian';
 import { PDFDocument, PDFHexString, PDFString, PDFPage } from 'pdf-lib';
@@ -315,7 +316,6 @@ export class PDFExporter {
             if (parts.length >= 2) {
                 title = parts.pop()!.trim();
             }
-            const contextContent = parts.slice(1).join("]");
             annotation.title = title;
         }
         if (annotation.original) {
@@ -437,6 +437,7 @@ export class PDFExporter {
             }
         }
         
+        // eslint-disable-next-line @typescript-eslint/await-thenable
         const pdfBytes = await Promise.resolve(pdfDoc.save());
         
         const existingFile = this.plugin.app.vault.getAbstractFileByPath(outputPdfName);

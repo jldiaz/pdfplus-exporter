@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 export interface Position {
     start: { line: number; col: number; offset: number };
     end: { line: number; col: number; offset: number };

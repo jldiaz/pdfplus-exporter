@@ -40,7 +40,7 @@ export class PDFPlusExporterSettingTab extends PluginSettingTab {
         const {containerEl} = this;
 
         containerEl.empty();
-        containerEl.createEl('h2', {text: t('settings_header')});
+        new Setting(containerEl).setName(t('settings_header')).setHeading();
 
         new Setting(containerEl)
             .setName(t('setting_default_color'))
@@ -95,7 +95,6 @@ export class PDFPlusExporterSettingTab extends PluginSettingTab {
             .addSlider(slider => slider
                 .setLimits(0.1, 1.0, 0.1)
                 .setValue(this.plugin.settings.highlightAlpha)
-                .setDynamicTooltip()
                 .onChange(async (value) => {
                     this.plugin.settings.highlightAlpha = value;
                     await this.plugin.saveSettings();

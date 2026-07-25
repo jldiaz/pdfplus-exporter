@@ -117,7 +117,7 @@ export class ExportModal extends Modal {
                 const filtered: Record<string, Link[]> = {};
                 for (const file in backlinks) {
                     if (globRegex.test(file) && backlinks[file]) {
-                        filtered[file] = backlinks[file] as Link[];
+                        filtered[file] = backlinks[file];
                     }
                 }
                 backlinks = filtered;
