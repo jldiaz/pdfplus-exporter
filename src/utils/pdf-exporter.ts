@@ -345,12 +345,45 @@ export class PDFExporter {
         return annotation;
     }
 
-    private addHighlightToPdfPage(page: PDFPage, origAnnotation: Annotation): string {
+    async getPdfPlusColors(): Promise<Record<string, string>> {
+        try {
+            const appWithPlugins = this.plugin.app as unknown as {
+                plugins?: {
+                    plugins?: {
+                        'pdf-plus'?: {
+                            settings?: {
+                                colors?: Record<string, string>;
+                            };
+                        };
+                    };
+                };
+            };
+            const inMemoryColors = appWithPlugins.plugins?.plugins?.['pdf-plus']?.settings?.colors;
+            if (inMemoryColors && Object.keys(inMemoryColors).length > 0) {
+                return inMemoryColors;
+            }
+
+            const configDir = this.plugin.app.vault.configDir;
+            const dataPath = `${configDir}/plugins/pdf-plus/data.json`;
+            if (await this.plugin.app.vault.adapter.exists(dataPath)) {
+                const dataRaw = await this.plugin.app.vault.adapter.read(dataPath);
+                const data = JSON.parse(dataRaw);
+                if (data.colors && typeof data.colors === 'object') {
+                    return data.colors as Record<string, string>;
+                }
+            }
+        } catch (e) {
+            console.debug("PDF Exporter: Could not load PDF++ colors", e);
+        }
+        return {};
+    }
+
+    private addHighlightToPdfPage(page: PDFPage, origAnnotation: Annotation, customColors?: Record<string, string>): string {
         const replacement = this.plugin.settings.replacementText;
         const annotation = this.processAnnotation(origAnnotation, replacement);
         const { r, g, b } = annotation.color === "default" || annotation.color === this.plugin.settings.defaultAnnotationColor ?
                             { "r": 255, "g": 255, "b": 128}
-                            : getRgb(annotation.color);
+                            : getRgb(annotation.color, customColors);
 
         const geometry = new PDFGeometry();
         const contents = annotation.context;
@@ -406,19 +439,20 @@ export class PDFExporter {
         page.node.addAnnot(ref);
 
         if (this.plugin.settings.exportStickyNotes && contents) {
-            const noteX1 = Math.max(10, mergedRect[0] - 25);
+            const noteSize = 14;
+            const noteX1 = Math.max(10, mergedRect[0] - noteSize - 4);
             const noteY2 = mergedRect[3];
-            const noteRect = [noteX1, noteY2 - 20, noteX1 + 20, noteY2];
+            const noteRect = [noteX1, noteY2 - noteSize, noteX1 + noteSize, noteY2];
 
             const noteObj = {
                 Type: 'Annot',
                 Subtype: 'Text',
-                Name: 'Comment',
+                Name: 'Note',
                 Rect: noteRect,
                 Contents: PDFHexString.fromText(contents ?? ''),
                 M: timestamp,
                 T: title,
-                F: 4,
+                F: 28, // Print (4) + NoZoom (8) + NoRotate (16)
                 C: [r / 255, g / 255, b / 255],
             };
 
@@ -445,10 +479,12 @@ export class PDFExporter {
             annotationsByPage.get(annotation.page)!.push(annotation);
         }
 
+        const pdfPlusColors = await this.getPdfPlusColors();
+
         for (const [pagenum, pageAnnotations] of annotationsByPage.entries()) {
             const page = pdfDoc.getPage(pagenum - 1);
             for (const annotation of pageAnnotations) {
-                this.addHighlightToPdfPage(page, annotation);
+                this.addHighlightToPdfPage(page, annotation, pdfPlusColors);
             }
         }
         
