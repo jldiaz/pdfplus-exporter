@@ -27,7 +27,8 @@ Si bien este enfoque bidireccional es ideal dentro de Obsidian, se pierde la rel
 ## ⚙️ Características Principales
 
 - **Independiente**: Aunque genera las anotaciones basadas en los enlaces de PDF++, el proceso de exportación es completamente autónomo y no requiere que el plugin PDF++ esté activo.
-- **Auto-completado inteligente**: Modal intuitivo que busca y filtra PDFs en tu bóveda de Obsidian.
+- **Auto-completado y detección de PDF activo**: El modal detecta automáticamente si tienes un archivo PDF abierto actualmente en Obsidian o permite buscarlo rápidamente con autocompletado en tu bóveda.
+- **Parámetros de exportación persistentes**: Recuerda las opciones y filtros utilizados la última vez (PDF origen, destino, filtro de notas/glob, colores y tags) para agilizar el trabajo iterativo.
 - **Soporte para todo tipo de anotaciones**: Exporta tanto resaltados de texto (`Highlight`) como selecciones de áreas rectangulares (`Square`).
 - **Notas flotantes (Sticky Notes)**: Opción para generar notas flotantes (`Text`) con tus comentarios, además de los popups estándar de resaltado, maximizando la compatibilidad con distintos visores PDF (Vista Previa, Edge, Acrobat).
 - **Personalización de resaltados**:

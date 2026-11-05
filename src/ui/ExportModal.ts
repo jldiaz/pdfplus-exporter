@@ -1,4 +1,4 @@
-import { Modal, Setting, Notice } from 'obsidian';
+import { Modal, Setting, Notice, TFile } from 'obsidian';
 import { PDFExporter } from '../utils/pdf-exporter';
 import { PdfInputSuggest } from './PdfInputSuggest';
 import type PDFPlusExporterPlugin from '../main';
@@ -19,11 +19,19 @@ export class ExportModal extends Modal {
         super(plugin.app);
         this.plugin = plugin;
         this.exporter = new PDFExporter(plugin);
-        this.pdfSource = "";
+
+        // Detectar si el archivo activo en Obsidian es un PDF
+        const activeFile = plugin.app.workspace.getActiveFile();
+        if (activeFile instanceof TFile && activeFile.extension === 'pdf') {
+            this.pdfSource = activeFile.path;
+        } else {
+            this.pdfSource = this.plugin.settings.lastPdfSource || "";
+        }
+
         this.outputPdfName = this.plugin.settings.lastOutputPdfName || t('default_output_pdf_name');
-        this.sourceGlob = "";
-        this.colorsFilter = "";
-        this.tagFilter = "";
+        this.sourceGlob = this.plugin.settings.lastSourceGlob || "";
+        this.colorsFilter = this.plugin.settings.lastColorsFilter || "";
+        this.tagFilter = this.plugin.settings.lastTagFilter || "";
     }
 
     onOpen() {
@@ -100,8 +108,12 @@ export class ExportModal extends Modal {
         try {
             new Notice(t('export_starting', { pdf: this.pdfSource }));
             
-            // Guardar el nombre de salida usado
+            // Guardar los valores usados para recordarlos en futuras exportaciones
             this.plugin.settings.lastOutputPdfName = this.outputPdfName;
+            this.plugin.settings.lastPdfSource = this.pdfSource;
+            this.plugin.settings.lastSourceGlob = this.sourceGlob;
+            this.plugin.settings.lastColorsFilter = this.colorsFilter;
+            this.plugin.settings.lastTagFilter = this.tagFilter;
             await this.plugin.saveSettings();
             
             // 1. Obtener backlinks

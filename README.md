@@ -27,7 +27,8 @@ While this non-destructive approach is ideal inside Obsidian, the connection bet
 ## ⚙️ Key Features
 
 - **Standalone Operation**: Generates annotations based on PDF++ links without requiring the PDF++ plugin to be enabled during export.
-- **Smart Autocomplete**: Modal with quick fuzzy-filtering of PDFs in your vault.
+- **Smart Autocomplete & Active PDF Detection**: Modal automatically detects the currently open PDF in Obsidian or offers quick fuzzy-filtering of PDFs across your vault.
+- **Persistent Export Settings**: Remembers your previous inputs (source PDF, destination file, note filter/glob, colors, and tags) across sessions for faster iteration.
 - **Support for All Annotation Types**: Exports both text highlights (`Highlight`) and rectangular area selections (`Square`).
 - **Sticky Notes**: Option to generate floating sticky notes (`Text` annotations) with your comments alongside standard highlight popups for maximum compatibility across different PDF viewers (Preview, Edge, Acrobat).
 - **Customizable Highlights**:

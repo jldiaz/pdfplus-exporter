@@ -13,6 +13,10 @@ export interface PDFPlusExporterSettings {
     exportStickyNotes: boolean;
     aliasMaxLength: number;
     lastOutputPdfName: string;
+    lastPdfSource: string;
+    lastSourceGlob: string;
+    lastColorsFilter: string;
+    lastTagFilter: string;
 }
 
 export const DEFAULT_SETTINGS: PDFPlusExporterSettings = {
@@ -26,6 +30,10 @@ export const DEFAULT_SETTINGS: PDFPlusExporterSettings = {
     exportStickyNotes: true,
     aliasMaxLength: 0,
     lastOutputPdfName: '',
+    lastPdfSource: '',
+    lastSourceGlob: '',
+    lastColorsFilter: '',
+    lastTagFilter: '',
 }
 
 export class PDFPlusExporterSettingTab extends PluginSettingTab {
